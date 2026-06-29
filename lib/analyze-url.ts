@@ -1,4 +1,8 @@
 import { AnalysisResult } from "@/types/analysis";
+import { TRUSTED_GOVERNMENT_DOMAINS } from "./trusted-government-domains";
+import { TRUSTED_COMPANY_DOMAINS } from "./trusted-company-domains";
+import { PROTECTED_KEYWORDS } from "./protected-keywords";
+import { calculateStatus } from "./calculate-status";
 
 export function analyzeUrl(
   url: string
@@ -10,6 +14,40 @@ export function analyzeUrl(
 
   const hostname =
     parsed.hostname.toLowerCase();
+
+  const separatorCount =
+  (hostname.match(/[-_]/g) || []).length;
+
+if (separatorCount >= 2) {
+  score += 20;
+
+  reasons.push(
+    "Domain menggunakan banyak pemisah yang sering dipakai situs phishing."
+  );
+}
+
+    const impersonatedKeyword =
+  PROTECTED_KEYWORDS.find((keyword) =>
+    hostname.includes(keyword)
+  );
+
+  const isTrustedGovernment =
+  TRUSTED_GOVERNMENT_DOMAINS.some(
+    (domain) =>
+      hostname === domain ||
+      hostname.endsWith("." + domain)
+  );
+
+const isTrustedCompany =
+  TRUSTED_COMPANY_DOMAINS.some(
+    (domain) =>
+      hostname === domain ||
+      hostname.endsWith("." + domain)
+  );
+
+const isGovernmentDomain =
+  hostname.endsWith(".go.id") ||
+  hostname.endsWith(".desa.id");
 
   const shorteners = [
     "bit.ly",
@@ -58,37 +96,200 @@ export function analyzeUrl(
     );
   }
 
-  const suspiciousWords = [
-  "login",
-  "verify",
-  "secure",
-  "bonus",
-  "gift",
-  "hadiah",
-  "promo",
-  "gratis",
-  "update",
-  "terbaru",
-  "dana",
-  "gopay",
-  "ovo",
-  "rekening",
-  "bank",
-  "undian",
-  "claim",
+  const suspiciousPatterns = [
+  {
+    word: "telegram",
+    score: 30,
+  },
+  {
+    word: "otp",
+    score: 30,
+  },
+  {
+    word: "whatsapp",
+    score: 20,
+  },
+  {
+    word: "verifikasi",
+    score: 20,
+  },
+  {
+    word: "verify",
+    score: 20,
+  },
+  {
+    word: "login",
+    score: 20,
+  },
+  {
+    word: "secure",
+    score: 20,
+  },
+  {
+    word: "claim",
+    score: 20,
+  },
+  {
+    word: "hadiah",
+    score: 20,
+  },
+  {
+    word: "voucher",
+    score: 15,
+  },
+  {
+    word: "bonus",
+    score: 15,
+  },
+  {
+    word: "promo",
+    score: 15,
+  },
+  {
+    word: "gratis",
+    score: 15,
+  },
+  {
+    word: "undian",
+    score: 20,
+  },
+  {
+    word: "rekening",
+    score: 20,
+  },
+  {
+  word: "klaim",
+  score: 20,
+  },
+  {
+  word: "akun",
+  score: 10,
+  },
+  {
+  word: "terima",
+  score: 10,
+  },
+  {
+    word: "bank",
+    score: 10,
+  },
+  {
+    word: "bansos",
+    score: 10,
+  },
+  {
+    word: "kemensos",
+    score: 10,
+  },
+  {
+    word: "dana",
+    score: 10,
+  },
+  {
+    word: "gopay",
+    score: 10,
+  },
+  {
+    word: "ovo",
+    score: 10,
+  },
+  {
+    word: "bri",
+    score: 15,
+  },
+  {
+    word: "bca",
+    score: 15,
+  },
+  {
+    word: "bankmandiri",
+    score: 20,
+  },
+  {
+    word: "btn",
+    score: 15,
+  },
+  {
+    word: "prakerja",
+    score: 10,
+  },
+  {
+    word: "subsidi",
+    score: 10,
+  },
+  {
+    word: "bantuan",
+    score: 15,
+  },
+  {
+    word: "update",
+    score: 10,
+  },
+  {
+    word: "terbaru",
+    score: 10,
+  },
+  {
+  word: "linkaja",
+  score: 15,
+},
+{
+  word: "shopee",
+  score: 15,
+},
+{
+  word: "tokopedia",
+  score: 15,
+},
+{
+  word: "mytelkomsel",
+  score: 15,
+},
+{
+  word: "pln",
+  score: 15,
+},
+{
+  word: "bpjs",
+  score: 15,
+},
+{
+  word: "pajak",
+  score: 15,
+},
+{
+  word: "djp",
+  score: 15,
+},
 ];
 
-  for (const word of suspiciousWords) {
-    if (url.toLowerCase().includes(word)) {
-      score += 15;
-      reasons.push(
-        `Mengandung kata mencurigakan: "${word}".`
-      );
-    }
+  for (const pattern of suspiciousPatterns) {
+  if (
+    url
+      .toLowerCase()
+      .includes(pattern.word)
+  ) {
+    score += pattern.score;
+
+    reasons.push(
+      `Mengandung kata mencurigakan: "${pattern.word}".`
+    );
   }
+}
 
   const digitCount =
   (hostname.match(/\d/g) || []).length;
+
+  const yearRegex =
+  /20\d{2}/;
+
+if (yearRegex.test(hostname)) {
+  score += 20;
+
+  reasons.push(
+    "Domain mengandung tahun yang sering dipakai situs phishing."
+  );
+}
 
 if (digitCount >= 3) {
   score += 15;
@@ -136,18 +337,53 @@ if (/^\/\d+$/.test(parsed.pathname)) {
     );
   }
 
-  let status:
-    | "safe"
-    | "suspicious"
-    | "dangerous";
+  if (isGovernmentDomain) {
+  score -= 20;
 
-  if (score >= 70) {
-    status = "dangerous";
-  } else if (score >= 30) {
-    status = "suspicious";
-  } else {
-    status = "safe";
-  }
+  reasons.push(
+    "Menggunakan domain resmi pemerintah Indonesia."
+  );
+}
+
+if (isTrustedGovernment) {
+  score -= 40;
+
+  reasons.push(
+    "Domain termasuk situs pemerintah terpercaya."
+  );
+}
+
+if (isTrustedCompany) {
+  score -= 40;
+
+  reasons.push(
+    "Domain termasuk situs resmi perusahaan terpercaya."
+  );
+}
+
+if (
+  impersonatedKeyword &&
+  hostname !== impersonatedKeyword &&
+  !hostname.endsWith("." + impersonatedKeyword) &&
+  !isTrustedGovernment &&
+  !isTrustedCompany
+) {
+  score += 35;
+
+  reasons.push(
+    `Domain mencoba meniru "${impersonatedKeyword}".`
+  );
+}
+
+score = Math.min(
+  Math.max(score, 0),
+  100
+);
+
+
+
+  const status =
+  calculateStatus(score);
 
   if (reasons.length === 0) {
     reasons.push(

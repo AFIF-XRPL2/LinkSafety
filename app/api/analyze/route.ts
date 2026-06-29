@@ -3,6 +3,7 @@ import { analyzeUrl } from "@/lib/analyze-url";
 import { isValidUrl } from "@/lib/validate-url";
 import { normalizeUrl } from "@/lib/normalize-url";
 import { domainExists } from "@/lib/dns-check";
+import { calculateStatus } from "@/lib/calculate-status";
 
 export async function POST(
   request: Request
@@ -52,15 +53,25 @@ const exists =
   );
 
   if (!exists) {
-  result.status =
-    "suspicious";
-
-  result.score += 40;
+  result.score = Math.min(
+    result.score + 20,
+    100
+  );
 
   result.reasons.push(
     "Domain tidak ditemukan."
   );
+
+  result.status =
+    calculateStatus(
+      result.score
+    );
 }
+
+console.log(
+  "Final Score:",
+  result.score
+);
 
     return NextResponse.json({
       url: normalizedUrl,

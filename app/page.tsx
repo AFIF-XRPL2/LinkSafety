@@ -6,6 +6,8 @@ import { isValidUrl } from "@/lib/validate-url";
 import { normalizeUrl } from "@/lib/normalize-url";
 import { AnalysisResult } from "@/types/analysis";
 import ResultCard from "@/components/ResultCard";
+import { PreviewData } from "@/types/preview";
+import PreviewCard from "@/components/PreviewCard";
 
 
 export default function Home() {
@@ -14,11 +16,16 @@ export default function Home() {
   const [result, setResult] =
   useState<AnalysisResult | null>(null);
 
+  const [preview, setPreview] =
+  useState<PreviewData | null>(null);
+
   const [loading, setLoading] =
   useState(false);
 
 const [error, setError] =
   useState("");
+
+  
 
   const handleSubmit = async () => {
   const normalizedUrl =
@@ -33,6 +40,27 @@ const [error, setError] =
   try {
     setLoading(true);
     setError("");
+    setPreview(null);
+    setResult(null);
+
+    const previewResponse =
+  await fetch("/api/preview", {
+    method: "POST",
+    headers: {
+      "Content-Type":
+        "application/json",
+    },
+    body: JSON.stringify({
+      url: normalizedUrl,
+    }),
+  });
+
+if (previewResponse.ok) {
+  const previewData =
+    await previewResponse.json();
+
+  setPreview(previewData);
+}
 
     const response =
       await fetch("/api/analyze", {
@@ -83,6 +111,11 @@ const [error, setError] =
           onChange={setUrl}
           onSubmit={handleSubmit}
         />
+        {preview && (
+  <PreviewCard
+    preview={preview}
+  />
+)}
         {error && (
   <p className="mt-4 text-red-500">
     {error}

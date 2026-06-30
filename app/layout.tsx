@@ -13,34 +13,47 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    "https://link-safety.vercel.app"
+  ),
+
   title: "Cek Potensi Keamanan URL & Phishing",
   description:
     "Periksa potensi keamanan url website yang ingin anda kunjungi.",
 
   openGraph: {
-    title: "Cek Potensi Keamanan URL & Phishing",
+    title:
+      "Cek Potensi Keamanan URL & Phishing",
+
     description:
       "Periksa potensi keamanan url website yang ingin anda kunjungi.",
-    url: "https://link-safety.vercel.app",
+
+    url: "/",
     siteName: "LinkSafety",
+
     images: [
       {
-        url: "/tumbnaillinkguard.jpeg",
+        url:
+          "/tumbnaillinkguard.jpeg",
         width: 1200,
         height: 630,
         alt: "LinkSafety",
       },
     ],
+
     locale: "id_ID",
     type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Cek Potensi Keamanan URL & Phishing",
+    title:
+      "Cek Potensi Keamanan URL & Phishing",
     description:
       "Periksa potensi keamanan url website yang ingin anda kunjungi.",
-    images: ["/og-image.png"],
+    images: [
+      "/tumbnaillinkguard.jpeg",
+    ],
   },
 };
 

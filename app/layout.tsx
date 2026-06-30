@@ -21,14 +21,14 @@ export const metadata: Metadata = {
     title: "Cek Potensi Keamanan URL & Phishing",
     description:
       "Periksa potensi keamanan url website yang ingin anda kunjungi.",
-    url: "https://linkguard.vercel.app",
-    siteName: "LinkGuard",
+    url: "https://link-safety.vercel.app",
+    siteName: "LinkSafety",
     images: [
       {
         url: "/tumbnaillinkguard.jpeg",
         width: 1200,
         height: 630,
-        alt: "LinkGuard",
+        alt: "LinkSafety",
       },
     ],
     locale: "id_ID",

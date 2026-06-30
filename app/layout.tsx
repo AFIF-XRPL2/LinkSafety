@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     images: [
       {
         url:
-           "https://link-safety.vercel.app/tumbnaillinkguard.jpeg",
+           "https://link-safety.vercel.app/tumbnailreal.jpeg",
         width: 1200,
         height: 630,
         alt: "LinkSafety",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     description:
       "Periksa potensi keamanan url website yang ingin anda kunjungi.",
     images: [
-       "https://link-safety.vercel.app/tumbnaillinkguard.jpeg",
+       "https://link-safety.vercel.app/tumbnailreal.jpeg",
     ],
   },
 };
